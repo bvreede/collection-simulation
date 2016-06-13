@@ -15,7 +15,7 @@ end_el = 12 #end time of egg lay in hours
 end_el = end_el*60 #end time of egg lay in minutes
 
 # Clutches are collected every 2 hours, and on average 4 clutches are laid per hour:
-slot_duration = choice([15,30,60,90,120]) #120 #duration of time slots for fixation in minutes
+slot_duration = choice([15,30,60,120]) #120 #duration of time slots for fixation in minutes
 clutchesPerHour= 4 # typical number of clutches laid in an hour
 
 # Abdominal segmentation starts at 40HAEL (hours after egg lay), and a new segment is formed every 1.5 hours
@@ -65,8 +65,6 @@ total_clutches = 0 #counts the total number of clutches generated in the simulat
 ## fixation categories
 nCats = end_el/slot_duration #total number of categories
 fixCats = [(start_sim+n*slot_duration)/60. for n in range(nCats)] #all possible age categories at fixation
-
-
 
 def slot(time):
 	'''
@@ -191,8 +189,6 @@ if min_sample < 2:
 	sys.exit("Not enough embryos to work with. Experiment not saved.")
 
 
-
-
 sampled_data = [] #data with only stages
 for cat in fixCats:
 	embryos = unsampled_data[cat]
@@ -243,4 +239,5 @@ out.write("%s,%s,%s,%s,%s\n" %(str(len(sampleList)),str(min_sample),str(total_cl
 out.close()
 
 #Add ANOVAs
-#something is still wrong with the simultaneous fixations and categories.
+#something is still wrong with the simultaneous fixations and categories: 90 minutes and True fixsim does not combine, because the categories
+#created that way are not in the fixCats list!
