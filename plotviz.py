@@ -19,10 +19,28 @@ df = pd.read_csv("dataset_random.csv")
 #plt.show()
 #plt.figure()
 
+def makeplot(title,filename,xlabel,xdata,ylabel,ydata,catlabel,catdata):
+	ax = sns.violinplot(x=xdata, y=ydata, hue=catdata, data=df, palette="Set1", scale="count",inner="quartile", bw=.1)
+	ax.set_title("")
+	ax.set_xlabel(xlabel)
+	ax.set_ylabel(ylabel)
+	plt.savefig("/home/barbara/Dropbox/oncopeltus/susan-lisa/%s.png" %filename)
+	plt.close()
 
-ax = sns.violinplot(x="slot_duration", y="pvalue", hue="simultaneous_fixation", data=df, palette="Set1", order=[15,30,60,120], scale="count",inner="quartile", bw=.1)
-ax.set_title('Random parameters')
+## Fill up the plot
+title = ""
+filename = ""
 
-ax.set_xlabel('fixation slots (minutes)')
-ax.set_ylabel('p-value')
-plt.show()
+## X axis ##
+xlabel = "Fixation frequency (in minutes)"
+xdata =  "slot_duration"
+
+## Y axis ##
+ylabel = "p-value" 
+ydata = "pvalue" #pvalue
+
+## Categories ##
+catlabel = ""
+catdata = "simultaneous_fixation"
+
+makeplot()
