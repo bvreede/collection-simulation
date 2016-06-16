@@ -9,7 +9,7 @@ sns.set_context("poster")
 #sns.despine(trim=True)
 
 df = pd.read_csv("collect_data.csv")
-#data=df.loc[(df["slot_duration"]==15) & (df["genetics_bool"]==True)]
+data=df.loc[(df["slot_duration"]!=120) & (df["simultaneous_fixation"]==False) & (df["genetics_bool"] == True) & (df["clutch_m"] == 10)]
 #data2 = data.loc[data["pvalue"] < 0.05]
 
 data_adjust = df.loc[(df["smallest_n"]>30) & (df["n_embryos"]>200)]
@@ -18,9 +18,9 @@ data_adjust = df.loc[(df["smallest_n"]>30) & (df["n_embryos"]>200)]
 #print "Of those, pval <0.05:", len(data2)
 #print "Percentage:", len(data2)/float(len(data))*100
 
-#colors = np.where(df.simultaneous_fixation == True, 'r', 'g')
-#plt.scatter(df.slot_duration, df.pvalue, c=colors)
-#plt.show()
+colors = np.where(data.smallest_n > 10, 'r', 'g')
+plt.scatter(data.n_embryos, data.pvalue, c=colors)
+plt.show()
 
 #plt.figure()
 #df['pvalue'].hist()
@@ -83,7 +83,7 @@ for cc in output_cats:
 			catlabel = labels[dc2]
 			catdata = dc2
 
-			makeplot(title,filename,xlabel,xdata,xorder,ylabel,ydata,catlabel,catdata)
+			#makeplot(title,filename,xlabel,xdata,xorder,ylabel,ydata,catlabel,catdata)
 
 
 
