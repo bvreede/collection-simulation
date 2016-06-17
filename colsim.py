@@ -16,7 +16,7 @@ end_el = end_el*60 #end time of egg lay in minutes
 
 # Clutches are collected every 2 hours, and on average 4 clutches are laid per hour:
 slot_duration = choice([15,30,60,120]) #120 #duration of time slots for fixation in minutes
-clutchesPerHour= 4 # typical number of clutches laid in an hour
+clutchesPerHour= 6 # typical number of clutches laid in an hour
 
 # Abdominal segmentation starts at 40HAEL (hours after egg lay), and a new segment is formed every 1.5 hours
 start_abdominal = 42 #start time of abdominal segmentation in hours
@@ -38,8 +38,8 @@ duration = int((end_sim - start_sim)/timestep) #length of simulation in time ste
 fixsim=choice([True, False])
 
 ##generate a list of random clutch sizes, normally distributed but larger than 0
-clutch_m = choice([4,10,20])#10 # for 'standard' #choice(range(5,21)) #for 'random' #10 #mean of normal distribution clutch sizes
-clutch_sd = choice([1,6,15])#6 # for 'standard'  #choice(range(1,11)) #for 'random' #6 #standard dev of normal distribution clutch sizes
+clutch_m = 10 #choice([4,10,20])#10 # for 'standard' #choice(range(5,21)) #for 'random' #10 #mean of normal distribution clutch sizes
+clutch_sd = 6 #choice([1,6,15])#6 # for 'standard'  #choice(range(1,11)) #for 'random' #6 #standard dev of normal distribution clutch sizes
 ranClutchSize = [int(t) for t in np.random.normal(clutch_m,clutch_sd,500) if t>0]
 
 ##generate a list of noise parameters for new clutches
@@ -47,7 +47,7 @@ noise_sd = choice([5,20])#choice(range(1,21)) #20 #standard deviation for noise 
 noise = [int(n) for n in np.random.normal(0,noise_sd,500)]
 
 ##generate a list of genetic 'noise' parameters, which will be specific per clutch
-genetics_bool = choice([True,False])
+genetics_bool = True #choice([True,False])
 if genetics_bool == True:
 	genetic_sd = 10 #standard deviation from segmentation rate, in minutes
 	genetics = [int(n) for n in np.random.normal(0,genetic_sd,100)]
