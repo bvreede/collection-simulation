@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from collections import Counter
 from scipy.stats import chisquare
+from scipy.stats import pearsonr
 import os,sys
 
 ## Simulation description and definition of time parameters:
@@ -38,21 +39,22 @@ duration = int((end_sim - start_sim)/timestep) #length of simulation in time ste
 fixsim=choice([True, False])
 
 ##generate a list of random clutch sizes, normally distributed but larger than 0
-clutch_m = 10 #choice([4,10,20])#10 # for 'standard' #choice(range(5,21)) #for 'random' #10 #mean of normal distribution clutch sizes
-clutch_sd = 6 #choice([1,6,15])#6 # for 'standard'  #choice(range(1,11)) #for 'random' #6 #standard dev of normal distribution clutch sizes
+clutch_m = 10 #mean of normal distribution clutch sizes
+clutch_sd = 6 #standard dev of normal distribution clutch sizes
 ranClutchSize = [int(t) for t in np.random.normal(clutch_m,clutch_sd,500) if t>0]
 
 ##generate a list of noise parameters for new clutches
-noise_sd = choice([5,20])#choice(range(1,21)) #20 #standard deviation for noise in time units, which is 2 minutes.
+noise_sd = 20 #standard deviation for noise in time units, which is 2 minutes.
 noise = [int(n) for n in np.random.normal(0,noise_sd,500)]
 
 ##generate a list of genetic 'noise' parameters, which will be specific per clutch
-genetics_bool = True #choice([True,False])
+genetics_bool = choice([True,False])
 if genetics_bool == True:
-	genetic_sd = 10 #standard deviation from segmentation rate, in minutes
+	genetic_sd = choice([5,10]) #standard deviation from segmentation rate, in minutes
 	genetics = [int(n) for n in np.random.normal(0,genetic_sd,100)]
 else:
 	genetics = [0]
+	genetic_sd = 0
 
 
 ## parameters defining the sample
@@ -163,11 +165,15 @@ for i in range(duration):
 print 'Total number of embryos:', len(sampleList)
 print 'Total number of clutches:', total_clutches
 print "Simultaneous fixation:", fixsim
-print "Genetics:", genetics_bool
+print "Genetics:", genetics_bool, genetic_sd
 print "Sampling frequency: every", slot_duration, "minutes"
 
 #process the data
 df = pd.DataFrame(sampleList, columns=["embryoID","age","stage"])
+corr = pearsonr(df["age"],df["stage"])
+corr_pval = str(corr[1])
+corr_rsquared = str(corr[0]*corr[0])
+corr_pearson = str(corr[0])
 
 unsampled_data = {} #dictionary with age:[stages], before sampling
 min_sample = len(sampleList) #the smallest number of embryos per age category
@@ -214,9 +220,9 @@ for i in range(2,9):
 	forchisquare.append(stagecounts[i])
 chisqtest = chisquare(forchisquare)
 if chisqtest[1] < 0.05:
-	print "YES (p value %s)" %str(chisqtest[1])
+	print "YES (p value %s), with pearson's R = %s (pvalue %s)" %(str(chisqtest[1]), corr_pearson, corr_pval)
 else:
-	print "NO (p value %s)" %str(chisqtest[1])
+	print "NO (p value %s), with pearson's R = %s (pvalue %s)" %(str(chisqtest[1]), corr_pearson, corr_pval)
 	
 
 #print data to output file. If the outputfile already exists, just add data to it.
@@ -226,18 +232,18 @@ if os.path.exists(outfile):
 	out = open(outfile, "a")
 else: #the outputfile does not yet exist. Create it and write headers
 	out = open(outfile, "w")
-	out.write("genetics_bool,slot_duration,start_abdominal,timestep,simultaneous_fixation,clutch_m,clutch_sd,noise_sd,n_embryos,smallest_n,total_clutches,chisquare,pvalue\n")
+	out.write("genetics_bool,genetic_sd,slot_duration,start_abdominal,timestep,simultaneous_fixation,clutch_m,clutch_sd,noise_sd,n_embryos,smallest_n,total_clutches,chisquare,chi_pvalue,pearsonsR,Rsquared,pear_pvalue\n")
 	
 #revert start_abdominal back to hours to write it to the outputfile
 start_abdominal = start_abdominal/60
 
 
 #write data and varying parameters to the outputfile
-out.write("%s,%s,%s,%s,%s," %(str(genetics_bool),str(slot_duration),str(start_abdominal),str(timestep),str(fixsim)))
+out.write("%s,%s,%s,%s,%s,%s," %(str(genetics_bool),str(genetic_sd),str(slot_duration),str(start_abdominal),str(timestep),str(fixsim)))
 out.write("%s,%s,%s," %(str(clutch_m),str(clutch_sd),str(noise_sd)))
-out.write("%s,%s,%s,%s,%s\n" %(str(len(sampleList)),str(min_sample),str(total_clutches),str(chisqtest[0]),str(chisqtest[1])))
+out.write("%s,%s,%s,%s,%s,%s,%s,%s\n" %(str(len(sampleList)),str(min_sample),str(total_clutches),str(chisqtest[0]),str(chisqtest[1]),corr_pearson,corr_rsquared,corr_pval))
 out.close()
 
-#Add ANOVAs
+
 #something is still wrong with the simultaneous fixations and categories: 90 minutes and True fixsim does not combine, because the categories
 #created that way are not in the fixCats list!
